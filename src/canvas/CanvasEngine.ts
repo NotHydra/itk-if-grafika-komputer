@@ -83,8 +83,8 @@ export class CanvasEngine {
       renderSinglePoint(ctx, point, state.theme, coords, point.id === state.selectedObjectId);
     }
 
-    // Render lines (stub until Step 2)
-    renderLines(ctx, state.lines, state.theme, coords);
+    // Render lines
+    renderLines(ctx, state.lines, state.points, state.theme, coords);
 
     // Render graphs (stub until Step 2)
     renderGraphs(ctx, state.graphs, state.theme, coords);

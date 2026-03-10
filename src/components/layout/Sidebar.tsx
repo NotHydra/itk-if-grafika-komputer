@@ -1,14 +1,26 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Crosshair, Microscope, Shapes, TrendingUp } from 'lucide-react';
+import { useStore } from '../../store';
 import { CoordinatePanel } from '../panels/CoordinatePanel';
 import { GraphPanel } from '../panels/GraphPanel';
 import { IllustrationPanel } from '../panels/IllustrationPanel';
 import { OpticsPanel } from '../panels/OpticsPanel';
 
 export function Sidebar() {
+  const setActiveStep = useStore((s) => s.setActiveStep);
+
+  const handleTabChange = (value: string) => {
+    switch (value) {
+      case 'points': setActiveStep(1); break;
+      case 'lines': setActiveStep(2); break;
+      case 'shapes': setActiveStep(3); break;
+      case 'optics': setActiveStep(4); break;
+    }
+  };
+
   return (
     <aside className="w-[320px] border-r border-border bg-background flex flex-col shrink-0 h-full">
-      <Tabs defaultValue="points" className="flex flex-col h-full">
+      <Tabs defaultValue="points" onValueChange={handleTabChange} className="flex flex-col h-full">
         <TabsList className="grid w-full grid-cols-4 rounded-none border-b border-border bg-transparent h-10 p-0">
           <TabsTrigger
             value="points"
