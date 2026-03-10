@@ -8,10 +8,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useStore } from '../../store';
 
-const COLOR_PRESETS = [
-  '#60a5fa', '#34d399', '#f87171', '#fbbf24', '#a78bfa',
-  '#fb923c', '#2dd4bf', '#f472b6', '#818cf8', '#4ade80',
-];
+const DEFAULT_COLOR = '#60a5fa';
 
 export function CoordinatePanel() {
   const points = useStore((s) => s.points);
@@ -27,7 +24,7 @@ export function CoordinatePanel() {
   const [newX, setNewX] = useState('');
   const [newY, setNewY] = useState('');
   const [newLabel, setNewLabel] = useState('');
-  const [newColor, setNewColor] = useState(COLOR_PRESETS[0]);
+  const [newColor, setNewColor] = useState(DEFAULT_COLOR);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editX, setEditX] = useState('');
   const [editY, setEditY] = useState('');
@@ -49,7 +46,7 @@ export function CoordinatePanel() {
     setEditX(point.x.toString());
     setEditY(point.y.toString());
     setEditLabel(point.label ?? '');
-    setEditColor(point.color ?? COLOR_PRESETS[0]);
+    setEditColor(point.color ?? DEFAULT_COLOR);
   };
 
   const saveEdit = () => {
@@ -121,20 +118,15 @@ export function CoordinatePanel() {
         </div>
         <div>
           <Label className="text-[11px] text-muted-foreground mb-1">Color</Label>
-          <div className="flex gap-1.5 flex-wrap">
-            {COLOR_PRESETS.map((color) => (
-              <button
-                key={color}
-                className={`w-6 h-6 rounded-full border-2 transition-all ${
-                  newColor === color
-                    ? 'border-foreground scale-110'
-                    : 'border-transparent hover:border-muted-foreground/50'
-                }`}
-                style={{ backgroundColor: color }}
-                onClick={() => setNewColor(color)}
-                title={color}
-              />
-            ))}
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={newColor}
+              onChange={(e) => setNewColor(e.target.value)}
+              className="w-8 h-8 p-0 border-0 bg-transparent cursor-pointer rounded-md [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-md"
+              title="Choose color"
+            />
+            <span className="text-[11px] font-mono text-muted-foreground uppercase">{newColor}</span>
           </div>
         </div>
         <Button onClick={handleAddPoint} className="w-full h-8 text-sm" size="sm">
@@ -192,19 +184,15 @@ export function CoordinatePanel() {
                       className="h-7 text-xs"
                       placeholder="Label"
                     />
-                    <div className="flex gap-1.5 flex-wrap">
-                      {COLOR_PRESETS.map((color) => (
-                        <button
-                          key={color}
-                          className={`w-5 h-5 rounded-full border-2 transition-all ${
-                            editColor === color
-                              ? 'border-foreground scale-110'
-                              : 'border-transparent hover:border-muted-foreground/50'
-                          }`}
-                          style={{ backgroundColor: color }}
-                          onClick={() => setEditColor(color)}
-                        />
-                      ))}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={editColor}
+                        onChange={(e) => setEditColor(e.target.value)}
+                        className="w-6 h-6 p-0 border-0 bg-transparent cursor-pointer rounded [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded"
+                        title="Choose color"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground uppercase">{editColor}</span>
                     </div>
                     <div className="flex gap-1.5">
                       <Button size="sm" className="h-6 text-xs flex-1" onClick={saveEdit}>
