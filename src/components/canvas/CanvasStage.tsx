@@ -7,6 +7,8 @@ export function CanvasStage() {
   const { canvasRef, containerRef, size } = useCanvas();
   const engineRef = useRef<CanvasEngine | null>(null);
   const [mousePos, setMousePos] = useState<{ wx: number; wy: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [lastPanPos, setLastPanPos] = useState<{ x: number; y: number } | null>(null);
 
   // Store selectors
   const theme = useStore((s) => s.theme);
@@ -68,7 +70,7 @@ export function CanvasStage() {
     }
   }, [theme, transform, gridScale, points, lines, graphs, shapes, opticsObjects, lightSources, shadowResults, selectedObjectId]);
 
-  // Handle mouse move for coordinate tooltip
+  // Handle mouse move for coordinate tooltip & panning
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (!engineRef.current) return;
@@ -76,6 +78,17 @@ export function CanvasStage() {
       if (!rect) return;
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
+
+      // Handle panning
+      if (isDragging && lastPanPos) {
+        setTransform({
+          originX: transform.originX + (sx - lastPanPos.x),
+          originY: transform.originY + (sy - lastPanPos.y),
+        });
+        setLastPanPos({ x: sx, y: sy });
+      }
+
+      // Update coordinate tooltip
       const coords = engineRef.current.getCoordinateSystem();
       const world = coords.screenToWorld(sx, sy);
       setMousePos({
@@ -83,10 +96,25 @@ export function CanvasStage() {
         wy: Math.round(world.y * 100) / 100,
       });
     },
+    [canvasRef, isDragging, lastPanPos, transform, setTransform],
+  );
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setIsDragging(true);
+      setLastPanPos({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    },
     [canvasRef],
   );
 
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseUpOrLeave = useCallback(() => {
+    setIsDragging(false);
+    setLastPanPos(null);
     setMousePos(null);
   }, []);
 
@@ -122,9 +150,11 @@ export function CanvasStage() {
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-background">
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full cursor-crosshair"
+        className={`absolute inset-0 w-full h-full ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUpOrLeave}
+        onMouseLeave={handleMouseUpOrLeave}
         onClick={handleClick}
       />
 
