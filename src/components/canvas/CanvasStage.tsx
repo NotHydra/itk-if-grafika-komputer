@@ -2,13 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CanvasEngine } from '../../canvas/CanvasEngine';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useStore } from '../../store';
+import { ShapeRegistry } from '../../canvas/shapes/ShapeRegistry';
 
 export function CanvasStage() {
   const { canvasRef, containerRef, size } = useCanvas();
   const engineRef = useRef<CanvasEngine | null>(null);
   const [mousePos, setMousePos] = useState<{ wx: number; wy: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [lastPanPos, setLastPanPos] = useState<{ x: number; y: number } | null>(null);
 
   // Store selectors
   const theme = useStore((s) => s.theme);
@@ -70,7 +70,47 @@ export function CanvasStage() {
     }
   }, [theme, transform, gridScale, points, lines, graphs, shapes, opticsObjects, lightSources, shadowResults, selectedObjectId]);
 
-  // Handle mouse move for coordinate tooltip & panning
+  const updateShape = useStore((s) => s.updateShape);
+  const updatePoint = useStore((s) => s.updatePoint);
+
+  const [dragState, setDragState] = useState<{
+    type: 'pan' | 'shape' | 'point';
+    id: string;
+    lastX: number;
+    lastY: number;
+    worldX: number;
+    worldY: number;
+  } | null>(null);
+
+  // Helper: check if world point is inside shape bounds
+  const getShapeAt = useCallback((wx: number, wy: number) => {
+    // Reverse order for top-first selection
+    for (let i = shapes.length - 1; i >= 0; i--) {
+      const s = shapes[i];
+      const def = ShapeRegistry.get(s.type);
+      if (!def) continue;
+      const bounds = def.getBounds(s);
+      
+      // Calculate local mouse pos (relative to shape center)
+      const dx = wx - s.x;
+      const dy = wy - s.y;
+      
+      // Rotate back to local
+      const rad = (-s.rotation * Math.PI) / 180;
+      const lx = dx * Math.cos(rad) - dy * Math.sin(rad);
+      const ly = dx * Math.sin(rad) + dy * Math.cos(rad);
+      
+      const halfW = (bounds.width * s.scale) / 2;
+      const halfH = (bounds.height * s.scale) / 2;
+      
+      if (Math.abs(lx) <= halfW && Math.abs(ly) <= halfH) {
+        return s;
+      }
+    }
+    return null;
+  }, [shapes]);
+
+  // Handle mouse move for coordinate tooltip & panning/dragging
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (!engineRef.current) return;
@@ -78,70 +118,90 @@ export function CanvasStage() {
       if (!rect) return;
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
+      const coords = engineRef.current.getCoordinateSystem();
+      const world = coords.screenToWorld(sx, sy);
 
-      // Handle panning
-      if (isDragging && lastPanPos) {
-        setTransform({
-          originX: transform.originX + (sx - lastPanPos.x),
-          originY: transform.originY + (sy - lastPanPos.y),
-        });
-        setLastPanPos({ x: sx, y: sy });
+      // Handle interactions
+      if (dragState) {
+        if (dragState.type === 'pan') {
+          setTransform({
+            originX: transform.originX + (sx - dragState.lastX),
+            originY: transform.originY + (sy - dragState.lastY),
+          });
+          setDragState({ ...dragState, lastX: sx, lastY: sy });
+        } else if (dragState.type === 'point') {
+          updatePoint(dragState.id, { x: world.x, y: world.y });
+        } else if (dragState.type === 'shape') {
+          const dx = world.x - dragState.worldX;
+          const dy = world.y - dragState.worldY;
+          const shape = shapes.find(s => s.id === dragState.id);
+          if (shape) {
+            updateShape(dragState.id, { 
+              x: shape.x + dx, 
+              y: shape.y + dy 
+            });
+            setDragState({ ...dragState, worldX: world.x, worldY: world.y });
+          }
+        }
       }
 
       // Update coordinate tooltip
-      const coords = engineRef.current.getCoordinateSystem();
-      const world = coords.screenToWorld(sx, sy);
       setMousePos({
         wx: Math.round(world.x * 100) / 100,
         wy: Math.round(world.y * 100) / 100,
       });
     },
-    [canvasRef, isDragging, lastPanPos, transform, setTransform],
+    [canvasRef, dragState, transform, setTransform, updatePoint, updateShape, shapes],
   );
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setIsDragging(true);
-      setLastPanPos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    },
-    [canvasRef],
-  );
-
-  const handleMouseUpOrLeave = useCallback(() => {
-    setIsDragging(false);
-    setLastPanPos(null);
-    setMousePos(null);
-  }, []);
-
-  // Handle click for point selection
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (!engineRef.current) return;
-      const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect) return;
+      if (!rect || !engineRef.current) return;
+      
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
       const coords = engineRef.current.getCoordinateSystem();
       const world = coords.screenToWorld(sx, sy);
 
-      // Check if click is near any point
-      let closestId: string | null = null;
-      let closestDist = Infinity;
+      // Priority: Points > Shapes > Pan
+      // 1. Check points
       for (const p of points) {
         const dist = Math.sqrt((p.x - world.x) ** 2 + (p.y - world.y) ** 2);
-        if (dist < 0.5 && dist < closestDist) {
-          closestDist = dist;
-          closestId = p.id;
+        if (dist < 0.5) {
+          setSelectedObjectId(p.id);
+          setDragState({ type: 'point', id: p.id, lastX: sx, lastY: sy, worldX: world.x, worldY: world.y });
+          return;
         }
       }
-      setSelectedObjectId(closestId);
+
+      // 2. Check shapes
+      const hitShape = getShapeAt(world.x, world.y);
+      if (hitShape) {
+        setSelectedObjectId(hitShape.id);
+        setDragState({ type: 'shape', id: hitShape.id, lastX: sx, lastY: sy, worldX: world.x, worldY: world.y });
+        return;
+      }
+
+      // 3. Fallback to Pan
+      setIsDragging(true);
+      setDragState({ type: 'pan', id: 'canvas', lastX: sx, lastY: sy, worldX: world.x, worldY: world.y });
     },
-    [canvasRef, points, setSelectedObjectId],
+    [canvasRef, points, getShapeAt, setSelectedObjectId],
+  );
+
+  const handleMouseUpOrLeave = useCallback(() => {
+    setIsDragging(false);
+    setDragState(null);
+    setMousePos(null);
+  }, []);
+
+  // Handle click only if not dragged much
+  const handleClick = useCallback(
+    () => {
+      // Selection logic handled in mouseDown/Move for dragging
+    },
+    [],
   );
 
   const zoomLevel = Math.round(transform.scale);
@@ -150,7 +210,7 @@ export function CanvasStage() {
     <div ref={containerRef} className="relative w-full h-full overflow-hidden bg-background">
       <canvas
         ref={canvasRef}
-        className={`absolute inset-0 w-full h-full ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`absolute inset-0 w-full h-full ${isDragging ? 'cursor-grabbing' : 'cursor-default'}`}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUpOrLeave}
@@ -160,7 +220,7 @@ export function CanvasStage() {
 
       {/* Coordinate tooltip */}
       {mousePos && (
-        <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-xs font-mono backdrop-blur-md bg-background/80 border border-border shadow-lg">
+        <div className="absolute top-3 right-3 px-3 py-1.5 rounded-lg text-xs font-mono backdrop-blur-md bg-background/80 border border-border shadow-lg pointer-events-none">
           <span className="text-muted-foreground">X:</span>{' '}
           <span className="text-foreground font-semibold">{mousePos.wx}</span>
           <span className="text-muted-foreground ml-3">Y:</span>{' '}

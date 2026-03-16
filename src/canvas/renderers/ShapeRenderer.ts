@@ -7,6 +7,7 @@ export function renderShape(
   shape: Shape2D,
   theme: Theme,
   coords: ICoordinateSystem,
+  selectedId: string | null = null,
 ): void {
   const def = ShapeRegistry.get(shape.type);
   if (!def) {
@@ -18,6 +19,18 @@ export function renderShape(
   ctx.translate(screenX, screenY);
   ctx.rotate((shape.rotation * Math.PI) / 180);
   ctx.scale(shape.scale, shape.scale);
+
+  // Selection highlight (bounding box)
+  const isSelected = selectedId === shape.id;
+  if (isSelected) {
+    const bounds = def.getBounds(shape);
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = theme === 'dark' ? '#fbbf24' : '#d97706'; // Amber highlight
+    ctx.lineWidth = 1 / shape.scale; // Maintain thin line regardless of scale
+    ctx.strokeRect(-bounds.width / 2 - 4, -bounds.height / 2 - 4, bounds.width + 8, bounds.height + 8);
+    ctx.setLineDash([]);
+  }
+
   def.draw(ctx, shape, theme);
   ctx.restore();
 }
@@ -27,8 +40,9 @@ export function renderShapes(
   shapes: Shape2D[],
   theme: Theme,
   coords: ICoordinateSystem,
+  selectedId: string | null = null,
 ): void {
   for (const shape of shapes) {
-    renderShape(ctx, shape, theme, coords);
+    renderShape(ctx, shape, theme, coords, selectedId);
   }
 }

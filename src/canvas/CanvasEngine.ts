@@ -90,7 +90,7 @@ export class CanvasEngine {
     renderGraphs(ctx, state.graphs, state.theme, coords);
 
     // Render shapes (stub until Step 3)
-    renderShapes(ctx, state.shapes, state.theme, coords);
+    renderShapes(ctx, state.shapes, state.theme, coords, state.selectedObjectId);
 
     // Render optics (stub until Step 4)
     renderOptics(ctx, state.opticsObjects, state.lightSources, state.shadowResults, state.theme, coords);
