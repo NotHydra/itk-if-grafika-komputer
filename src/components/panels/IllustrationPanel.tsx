@@ -6,8 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
 import * as LucideIcons from 'lucide-react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useStore } from '../../store';
 import { ShapeRegistry } from '../../canvas/shapes/ShapeRegistry';
+import { useStore } from '../../store';
 import type { ShapeType } from '../../types';
 
 export function IllustrationPanel() {
@@ -41,10 +41,10 @@ export function IllustrationPanel() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Palette */}
+      {/* Shape Options */}
       <div className="p-4 space-y-3">
         <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
-          Shape Palette
+          Shape Options
         </h3>
         <div className="grid grid-cols-3 gap-2">
           {availableShapes.map((def) => (

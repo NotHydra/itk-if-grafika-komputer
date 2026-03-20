@@ -2,8 +2,8 @@ import { metaNum } from '../../utils/shapeUtils';
 import { ShapeRegistry } from './ShapeRegistry';
 
 ShapeRegistry.register({
-  id: 'nail',
-  label: 'Nail / Pin',
+  id: 'pin',
+  label: 'Pin',
   icon: 'pin',
   draw(ctx, shape, _theme) {
     const headRadius = metaNum(shape.meta, 'headRadius', 8);
