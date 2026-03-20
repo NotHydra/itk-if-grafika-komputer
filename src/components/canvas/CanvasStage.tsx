@@ -3,6 +3,8 @@ import { CanvasEngine } from '../../canvas/CanvasEngine';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useStore } from '../../store';
 import { ShapeRegistry } from '../../canvas/shapes/ShapeRegistry';
+import { calculateImage } from '../../utils/opticsCalculations';
+import type { ShadowResult } from '../../types';
 
 export function CanvasStage() {
   const { canvasRef, containerRef, size } = useCanvas();
@@ -24,6 +26,7 @@ export function CanvasStage() {
   const selectedObjectId = useStore((s) => s.selectedObjectId);
   const setTransform = useStore((s) => s.setTransform);
   const setSelectedObjectId = useStore((s) => s.setSelectedObjectId);
+  const setShadowResults = useStore((s) => s.setShadowResults);
 
   // Initialize engine
   useEffect(() => {
@@ -50,6 +53,25 @@ export function CanvasStage() {
       }
     }
   }, [size, transform.originX, transform.originY, setTransform]);
+
+  // Synchronize physics calculations for Optics
+  const lastShadowsStr = useRef<string>('');
+  useEffect(() => {
+    const newShadows: ShadowResult[] = [];
+    for (const ls of lightSources) {
+      const sourceShape = shapes.find((s) => s.id === ls.sourceShapeId);
+      const optic = opticsObjects.find((o) => o.id === ls.opticsObjectId);
+      if (sourceShape && optic) {
+        const shadow = calculateImage(optic, sourceShape);
+        if (shadow) newShadows.push(shadow);
+      }
+    }
+    const signature = JSON.stringify(newShadows);
+    if (signature !== lastShadowsStr.current) {
+      lastShadowsStr.current = signature;
+      setShadowResults(newShadows);
+    }
+  }, [shapes, opticsObjects, lightSources, setShadowResults]);
 
   // Sync state to engine
   useEffect(() => {

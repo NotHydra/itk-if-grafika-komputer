@@ -93,7 +93,7 @@ export class CanvasEngine {
     renderShapes(ctx, state.shapes, state.theme, coords, state.selectedObjectId);
 
     // Render optics (stub until Step 4)
-    renderOptics(ctx, state.opticsObjects, state.lightSources, state.shadowResults, state.theme, coords);
+    renderOptics(ctx, state.opticsObjects, state.lightSources, state.shadowResults, state.shapes, state.theme, coords);
   }
 
   start(): void {

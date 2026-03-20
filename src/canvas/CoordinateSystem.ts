@@ -7,6 +7,8 @@ export interface ICoordinateSystem {
   screenToWorld(sx: number, sy: number): { x: number; y: number };
   /** Update the transform when canvas size or pan/zoom changes */
   update(canvasWidth: number, canvasHeight: number, transform: CanvasTransform): void;
+  /** Get current zoom scale */
+  getScale(): number;
 }
 
 export class CoordinateSystem implements ICoordinateSystem {
