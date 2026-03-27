@@ -5,6 +5,7 @@ ShapeRegistry.register({
   id: 'arrow',
   label: 'Arrow',
   icon: 'move-right',
+  defaultColor: '#ef4444',
   draw(ctx, shape, _theme) {
     const shaftLength = metaNum(shape.meta, 'shaftLength', 60);
     const headSize = metaNum(shape.meta, 'headSize', 15);

@@ -194,12 +194,12 @@ export function IllustrationPanel() {
                   <div className="flex items-center gap-2">
                     <input
                       type="color"
-                      value={selectedShape.color || '#60a5fa'}
+                      value={selectedShape.color || selectedDef.defaultColor || '#60a5fa'}
                       onChange={(e) => updateShape(selectedShape.id, { color: e.target.value })}
                       className="w-7 h-7 p-0 border-0 bg-transparent cursor-pointer rounded [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded"
                     />
                     <span className="text-[10px] font-mono text-muted-foreground uppercase">
-                      {selectedShape.color || '#60a5fa'}
+                      {selectedShape.color || selectedDef.defaultColor || '#60a5fa'}
                     </span>
                   </div>
                 </div>

@@ -5,6 +5,7 @@ ShapeRegistry.register({
   id: 'pin',
   label: 'Pin',
   icon: 'pin',
+  defaultColor: '#9ca3af',
   draw(ctx, shape, _theme) {
     const headRadius = metaNum(shape.meta, 'headRadius', 8);
     const shaftLength = metaNum(shape.meta, 'shaftLength', 60);

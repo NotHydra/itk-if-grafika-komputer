@@ -10,6 +10,9 @@ export interface ShapeDefinition {
   /** Lucide icon name for the palette button */
   icon: string;
 
+  /** Default base color when first created */
+  defaultColor?: string;
+
   /**
    * Draw the shape onto the canvas context.
    * Called with ctx already translated/rotated/scaled to shape-local space.

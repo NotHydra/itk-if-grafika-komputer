@@ -5,6 +5,7 @@ ShapeRegistry.register({
   id: 'pencil',
   label: 'Pencil',
   icon: 'pencil',
+  defaultColor: '#f5c542',
   draw(ctx, shape, _theme) {
     const len = metaNum(shape.meta, 'length', 80);
     const w = 10;
