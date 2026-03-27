@@ -122,15 +122,15 @@ export function CanvasStage() {
       const lx = dx * Math.cos(rad) - dy * Math.sin(rad);
       const ly = dx * Math.sin(rad) + dy * Math.cos(rad);
       
-      const halfW = (bounds.width * s.scale) / 2;
-      const halfH = (bounds.height * s.scale) / 2;
+      const halfW = (bounds.width * s.scale) / (2 * transform.scale);
+      const halfH = (bounds.height * s.scale) / (2 * transform.scale);
       
       if (Math.abs(lx) <= halfW && Math.abs(ly) <= halfH) {
         return s;
       }
     }
     return null;
-  }, [shapes]);
+  }, [shapes, transform.scale]);
 
   // Handle mouse move for coordinate tooltip & panning/dragging
   const handleMouseMove = useCallback(
