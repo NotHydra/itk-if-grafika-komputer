@@ -27,7 +27,7 @@ export function renderShape(
     ctx.setLineDash([5, 5]);
     ctx.strokeStyle = theme === 'dark' ? '#fbbf24' : '#d97706'; // Amber highlight
     ctx.lineWidth = 1 / shape.scale; // Maintain thin line regardless of scale
-    ctx.strokeRect(-bounds.width / 2 - 4, -bounds.height / 2 - 4, bounds.width + 8, bounds.height + 8);
+    ctx.strokeRect(bounds.x - 4, bounds.y - 4, bounds.width + 8, bounds.height + 8);
     ctx.setLineDash([]);
   }
 

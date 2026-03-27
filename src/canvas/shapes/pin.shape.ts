@@ -36,7 +36,7 @@ ShapeRegistry.register({
   getBounds(shape) {
     const headRadius = metaNum(shape.meta, 'headRadius', 8);
     const shaftLength = metaNum(shape.meta, 'shaftLength', 60);
-    return { width: headRadius * 2, height: shaftLength + 12 };
+    return { x: -headRadius, y: -shaftLength, width: headRadius * 2, height: shaftLength + headRadius + 12 };
   },
   inspectorFields: [
     { key: 'headRadius', label: 'Head Radius', type: 'range', min: 4, max: 20, step: 1, defaultValue: 8 },

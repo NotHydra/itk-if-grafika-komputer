@@ -122,10 +122,16 @@ export function CanvasStage() {
       const lx = dx * Math.cos(rad) - dy * Math.sin(rad);
       const ly = dx * Math.sin(rad) + dy * Math.cos(rad);
       
-      const halfW = (bounds.width * s.scale) / (2 * transform.scale);
-      const halfH = (bounds.height * s.scale) / (2 * transform.scale);
+      // Convert world distances back to original local screen pixel space (invert Y)
+      const localScreenX = (lx * transform.scale) / s.scale;
+      const localScreenY = (-ly * transform.scale) / s.scale;
       
-      if (Math.abs(lx) <= halfW && Math.abs(ly) <= halfH) {
+      if (
+        localScreenX >= bounds.x &&
+        localScreenX <= bounds.x + bounds.width &&
+        localScreenY >= bounds.y &&
+        localScreenY <= bounds.y + bounds.height
+      ) {
         return s;
       }
     }

@@ -25,7 +25,8 @@ ShapeRegistry.register({
     ctx.fillRect(-len / 2, -w / 2, len * 0.1, w);
   },
   getBounds(shape) {
-    return { width: metaNum(shape.meta, 'length', 80), height: 10 };
+    const len = metaNum(shape.meta, 'length', 80);
+    return { x: -len / 2, y: -5, width: len, height: 10 };
   },
   inspectorFields: [
     { key: 'length', label: 'Length', type: 'range', min: 30, max: 200, step: 5, defaultValue: 80 },

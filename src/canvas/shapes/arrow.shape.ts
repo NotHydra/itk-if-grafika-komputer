@@ -27,7 +27,7 @@ ShapeRegistry.register({
   getBounds(shape) {
     const shaftLength = metaNum(shape.meta, 'shaftLength', 60);
     const headSize = metaNum(shape.meta, 'headSize', 15);
-    return { width: shaftLength, height: headSize };
+    return { x: -shaftLength / 2, y: -headSize / 2, width: shaftLength, height: headSize };
   },
   inspectorFields: [
     { key: 'shaftLength', label: 'Shaft Length', type: 'range', min: 20, max: 150, step: 5, defaultValue: 60 },

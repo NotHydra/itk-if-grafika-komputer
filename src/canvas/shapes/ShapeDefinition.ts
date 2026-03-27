@@ -24,7 +24,7 @@ export interface ShapeDefinition {
    * Return the bounding box in local (pre-transform) space.
    * Used for click-hit detection and selection handles.
    */
-  getBounds: (shape: Shape2D) => { width: number; height: number };
+  getBounds: (shape: Shape2D) => { x: number; y: number; width: number; height: number };
 
   /**
    * Optional: extra config fields this shape exposes in the inspector panel.
