@@ -145,7 +145,7 @@ export function CoordinatePanel() {
           </h3>
           <span className="text-[11px] text-muted-foreground">{points.length} items</span>
         </div>
-        <ScrollArea className="flex-1 px-2">
+        <ScrollArea className="flex-1 px-2 min-h-0">
           {points.length === 0 ? (
             <div className="px-2 py-8 text-center">
               <p className="text-sm text-muted-foreground">No points yet</p>

@@ -72,7 +72,7 @@ export function IllustrationPanel() {
           </h3>
           <span className="text-[11px] text-muted-foreground">{shapes.length} items</span>
         </div>
-        <ScrollArea className="flex-1 px-2">
+        <ScrollArea className="flex-1 px-2 min-h-0">
           {shapes.length === 0 ? (
             <div className="px-2 py-8 text-center">
               <p className="text-sm text-muted-foreground">No shapes yet</p>
@@ -133,7 +133,7 @@ export function IllustrationPanel() {
             Shape Inspector
           </h3>
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           {selectedShape && selectedDef ? (
             <div className="p-4 space-y-4">
               {/* Common Fields */}
@@ -219,7 +219,7 @@ export function IllustrationPanel() {
                         <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
                         {(field.type === 'range' || field.type === 'number') && (
                           <span className="text-[10px] font-mono text-muted-foreground">
-                            {selectedShape.meta?.[field.key] ?? field.defaultValue}
+                            {String(selectedShape.meta?.[field.key] ?? field.defaultValue)}
                           </span>
                         )}
                       </div>

@@ -52,16 +52,16 @@ export function Sidebar() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="points" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="points" className="flex-1 m-0 overflow-hidden flex flex-col min-h-0">
           <CoordinatePanel />
         </TabsContent>
-        <TabsContent value="lines" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="lines" className="flex-1 m-0 overflow-hidden flex flex-col min-h-0">
           <GraphPanel />
         </TabsContent>
-        <TabsContent value="shapes" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="shapes" className="flex-1 m-0 overflow-hidden flex flex-col min-h-0">
           <IllustrationPanel />
         </TabsContent>
-        <TabsContent value="optics" className="flex-1 m-0 overflow-hidden">
+        <TabsContent value="optics" className="flex-1 m-0 overflow-hidden flex flex-col min-h-0">
           <OpticsPanel />
         </TabsContent>
       </Tabs>

@@ -167,7 +167,7 @@ export function GraphPanel() {
 
           <Separator />
           
-          <ScrollArea className="flex-1 px-2 py-2">
+          <ScrollArea className="flex-1 px-2 py-2 min-h-0">
             {lines.length === 0 ? (
               <p className="text-xs text-center text-muted-foreground mt-4">No lines added yet.</p>
             ) : (
@@ -237,7 +237,7 @@ export function GraphPanel() {
 
           <Separator />
           
-          <ScrollArea className="flex-1 px-2 py-2">
+          <ScrollArea className="flex-1 px-2 py-2 min-h-0">
             {graphs.length === 0 ? (
               <p className="text-xs text-center text-muted-foreground mt-4">No functions yet.</p>
             ) : (

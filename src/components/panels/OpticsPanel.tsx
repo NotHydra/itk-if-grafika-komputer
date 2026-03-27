@@ -60,7 +60,7 @@ export function OpticsPanel() {
         <span className="text-xs text-muted-foreground">{opticsObjects.length} items</span>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-3 space-y-2">
           {opticsObjects.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-xs italic bg-muted/30 rounded-lg border border-dashed">
