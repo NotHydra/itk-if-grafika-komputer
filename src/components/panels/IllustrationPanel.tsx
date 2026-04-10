@@ -196,7 +196,7 @@ export function IllustrationPanel() {
 									</div>
 								</div>
 
-								<div className="space-y-1.5">
+								{/* <div className="space-y-1.5">
 									<div className="flex justify-between">
 										<Label className="text-[11px] text-muted-foreground">
 											Rotation (°)
@@ -217,7 +217,7 @@ export function IllustrationPanel() {
 										step={1}
 										className="py-1"
 									/>
-								</div>
+								</div> */}
 
 								<div className="space-y-1.5">
 									<div className="flex justify-between">
