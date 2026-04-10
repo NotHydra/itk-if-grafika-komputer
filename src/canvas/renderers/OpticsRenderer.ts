@@ -9,6 +9,28 @@ import type { ICoordinateSystem } from "../CoordinateSystem";
 import { ShapeRegistry } from "../shapes/ShapeRegistry";
 import { renderShape } from "./ShapeRenderer";
 
+/**
+ * Find the point where a ray (x0,y0) + t*(dx,dy) exits the canvas rectangle.
+ * Returns the exit point in canvas pixel coordinates.
+ * If the ray has zero length, returns the start point.
+ */
+function rayToEdge(
+	x0: number,
+	y0: number,
+	dx: number,
+	dy: number,
+	w: number,
+	h: number,
+): { x: number; y: number } {
+	if (dx === 0 && dy === 0) return { x: x0, y: y0 };
+	let t = Infinity;
+	if (dx > 0) t = Math.min(t, (w - x0) / dx);
+	else if (dx < 0) t = Math.min(t, -x0 / dx);
+	if (dy > 0) t = Math.min(t, (h - y0) / dy);
+	else if (dy < 0) t = Math.min(t, -y0 / dy);
+	return { x: x0 + t * dx, y: y0 + t * dy };
+}
+
 export function renderOptics(
 	ctx: CanvasRenderingContext2D,
 	opticsObjects: OpticsObject[],
@@ -288,37 +310,84 @@ export function renderOptics(
 				tipImgWorldY,
 			);
 
-			ctx.beginPath();
+			const rayColor = isDark
+				? "rgba(250, 204, 21, 0.7)"
+				: "rgba(234, 179, 8, 0.7)";
+			const extColor = isDark
+				? "rgba(250, 204, 21, 0.3)"
+				: "rgba(234, 179, 8, 0.3)";
 
-			// Ray 1: Parallel to principal axis -> through focal point
-			ctx.moveTo(sx, sy);
-			ctx.lineTo(ox, oty);
-			if (shadow.imageType === "real") {
-				// It crosses the focal point on the other side and goes to the image tip
-				ctx.lineTo(ix, iy);
-			} else {
-				// Ray diverges. It traces back to the virtual image tip.
-				ctx.lineTo(ix, iy);
-			}
+			// Canvas CSS dimensions for ray-to-edge clipping
+			const cw = ctx.canvas.getBoundingClientRect().width;
+			const ch = ctx.canvas.getBoundingClientRect().height;
 
-			// Ray 2: Through optical center (pole) -> straight through
-			ctx.moveTo(sx, sy);
-			ctx.lineTo(ox, oy);
-			if (shadow.imageType === "real") {
-				ctx.lineTo(ix, iy);
-			} else {
-				ctx.lineTo(ix, iy);
-			}
-
-			ctx.strokeStyle = isDark
-				? "rgba(250, 204, 21, 0.6)"
-				: "rgba(234, 179, 8, 0.6)";
 			ctx.lineWidth = 1.5;
-			if (shadow.imageType === "virtual") {
-				ctx.setLineDash([4, 4]); // Dashed for virtual tracebacks
-			}
-			ctx.stroke();
 			ctx.setLineDash([]);
+
+			if (shadow.imageType === "real") {
+				// ── REAL IMAGE ──────────────────────────────────────────────
+				// Solid rays: source tip → lens → image tip (actual physical path)
+				ctx.beginPath();
+				ctx.strokeStyle = rayColor;
+				// Ray 1: parallel to axis → refracts through far focal point
+				ctx.moveTo(sx, sy);
+				ctx.lineTo(ox, oty);
+				ctx.lineTo(ix, iy);
+				// Ray 2: straight through optical centre
+				ctx.moveTo(sx, sy);
+				ctx.lineTo(ox, oy);
+				ctx.lineTo(ix, iy);
+				ctx.stroke();
+
+				// Dashed extensions: continue each ray to the screen edge
+				ctx.beginPath();
+				ctx.strokeStyle = extColor;
+				ctx.setLineDash([6, 5]);
+
+				// Ray 1 extension (lens→image direction, beyond image)
+				const ext1 = rayToEdge(ix, iy, ix - ox, iy - oty, cw, ch);
+				ctx.moveTo(ix, iy);
+				ctx.lineTo(ext1.x, ext1.y);
+
+				// Ray 2 extension (centre→image direction, beyond image)
+				const ext2 = rayToEdge(ix, iy, ix - ox, iy - oy, cw, ch);
+				ctx.moveTo(ix, iy);
+				ctx.lineTo(ext2.x, ext2.y);
+
+				ctx.stroke();
+				ctx.setLineDash([]);
+			} else {
+				// ── VIRTUAL IMAGE ────────────────────────────────────────────
+				// Solid rays: actual diverging physical paths (away from virtual image)
+				ctx.beginPath();
+				ctx.strokeStyle = rayColor;
+				ctx.setLineDash([]);
+
+				// Ray 1: source → lens-hit, then diverge to screen edge
+				const div1 = rayToEdge(ox, oty, ox - ix, oty - iy, cw, ch);
+				ctx.moveTo(sx, sy);
+				ctx.lineTo(ox, oty);
+				ctx.lineTo(div1.x, div1.y);
+
+				// Ray 2: source → optical centre, then continue to screen edge
+				const div2 = rayToEdge(ox, oy, ox - sx, oy - sy, cw, ch);
+				ctx.moveTo(sx, sy);
+				ctx.lineTo(ox, oy);
+				ctx.lineTo(div2.x, div2.y);
+
+				ctx.stroke();
+
+				// Dashed back-extensions: lens → virtual image (shows apparent origin)
+				ctx.beginPath();
+				ctx.strokeStyle = extColor;
+				ctx.setLineDash([6, 5]);
+				ctx.moveTo(ox, oty);
+				ctx.lineTo(ix, iy);
+				ctx.moveTo(ox, oy);
+				ctx.lineTo(ix, iy);
+				ctx.stroke();
+				ctx.setLineDash([]);
+			}
 		}
 	}
 
