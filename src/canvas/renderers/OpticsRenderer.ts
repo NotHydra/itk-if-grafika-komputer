@@ -324,6 +324,40 @@ export function renderOptics(
 			ctx.lineWidth = 1.5;
 			ctx.setLineDash([]);
 
+			// ─────────────────────────────────────────────────────────────────────
+			// RAY 3 SETUP — common for both real and virtual
+			// ─────────────────────────────────────────────────────────────────────
+			// Ray 3 is aimed at the appropriate focal point so that after hitting
+			// the optic it exits PARALLEL to the optical axis.
+			//   • Converging (convex lens, concave mirror) → aim at near focal F
+			//     F = (optic.x − |f|, optic.y)
+			//   • Diverging  (concave lens, convex mirror)  → aim at far focal F′
+			//     F′ = (optic.x + |f|, optic.y)
+			//
+			// Math proof: for any optic, the y-coordinate where Ray 3 hits the
+			// optic plane equals tipImgWorldY (the image tip), so the horizontal
+			// exit ray always passes through the convergence point. ✓
+			const isDivergingOptic =
+				optic.type === "concave-lens" || optic.type === "convex-mirror";
+			const focal3X = isDivergingOptic
+				? optic.x + optic.focalLength // far virtual focal F′
+				: optic.x - optic.focalLength; // near real focal F
+			const focal3Y = optic.y;
+
+			const denom3 = focal3X - sourceShape.x;
+			const ray3Valid = Math.abs(denom3) > 0.01; // skip if source sits on focal point
+
+			// Hit-point on the optic plane (world Y)
+			const hitY3World = ray3Valid
+				? tipWorldY +
+					((optic.x - sourceShape.x) / denom3) * (focal3Y - tipWorldY)
+				: tipWorldY;
+			const { x: h3x, y: h3y } = coords.worldToScreen(optic.x, hitY3World);
+
+			// Exit direction: lenses transmit (→ right), mirrors reflect (→ left)
+			const isLensType = optic.type.includes("lens");
+			const exitDx3 = isLensType ? 1 : -1;
+
 			if (shadow.imageType === "real") {
 				// ── REAL IMAGE ──────────────────────────────────────────────
 				// Solid rays: source tip → lens → image tip (actual physical path)
@@ -337,6 +371,12 @@ export function renderOptics(
 				ctx.moveTo(sx, sy);
 				ctx.lineTo(ox, oy);
 				ctx.lineTo(ix, iy);
+				// Ray 3: aimed at focal point → exits parallel to axis
+				if (ray3Valid) {
+					ctx.moveTo(sx, sy);
+					ctx.lineTo(h3x, h3y); // source → optic plane
+					ctx.lineTo(ix, h3y); // horizontal exit to image (h3y ≈ iy)
+				}
 				ctx.stroke();
 
 				// Dashed extensions: continue each ray to the screen edge
@@ -353,6 +393,13 @@ export function renderOptics(
 				const ext2 = rayToEdge(ix, iy, ix - ox, iy - oy, cw, ch);
 				ctx.moveTo(ix, iy);
 				ctx.lineTo(ext2.x, ext2.y);
+
+				// Ray 3 extension: continue horizontal from image tip to screen edge
+				if (ray3Valid) {
+					const ext3 = rayToEdge(ix, h3y, exitDx3, 0, cw, ch);
+					ctx.moveTo(ix, h3y);
+					ctx.lineTo(ext3.x, h3y);
+				}
 
 				ctx.stroke();
 				ctx.setLineDash([]);
@@ -375,6 +422,15 @@ export function renderOptics(
 				ctx.lineTo(ox, oy);
 				ctx.lineTo(div2.x, div2.y);
 
+				// Ray 3: source → optic hit, exits PARALLEL to axis (horizontal)
+				// Forward direction (physical exit) → screen edge
+				if (ray3Valid) {
+					const fwd3 = rayToEdge(h3x, h3y, exitDx3, 0, cw, ch);
+					ctx.moveTo(sx, sy);
+					ctx.lineTo(h3x, h3y);
+					ctx.lineTo(fwd3.x, h3y);
+				}
+
 				ctx.stroke();
 
 				// Dashed back-extensions: lens → through virtual image → screen edge
@@ -393,6 +449,14 @@ export function renderOptics(
 				const back2 = rayToEdge(ox, oy, ix - ox, iy - oy, cw, ch);
 				ctx.moveTo(ox, oy);
 				ctx.lineTo(back2.x, back2.y);
+
+				// Ray 3 back-extension: from optic hit going BACKWARD (horizontal) to edge
+				// This dashed line passes through the virtual image at h3y ≈ iy
+				if (ray3Valid) {
+					const back3 = rayToEdge(h3x, h3y, -exitDx3, 0, cw, ch);
+					ctx.moveTo(h3x, h3y);
+					ctx.lineTo(back3.x, h3y);
+				}
 
 				ctx.stroke();
 				ctx.setLineDash([]);
