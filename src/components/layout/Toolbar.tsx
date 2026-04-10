@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Moon, RefreshCw, Sun, ZoomIn, ZoomOut } from "lucide-react";
+import { RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
 import { useStore } from "../../store";
 
 export function Toolbar() {
