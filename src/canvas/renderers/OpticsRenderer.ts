@@ -377,14 +377,23 @@ export function renderOptics(
 
 				ctx.stroke();
 
-				// Dashed back-extensions: lens → virtual image (shows apparent origin)
+				// Dashed back-extensions: lens → through virtual image → screen edge
+				// The virtual image is where these lines APPEAR to converge, not stop.
+				// Direction: from lens toward virtual image, then keep going.
 				ctx.beginPath();
 				ctx.strokeStyle = extColor;
 				ctx.setLineDash([6, 5]);
+
+				// Ray 1 back-extension: from lens-hit through virtual image tip to edge
+				const back1 = rayToEdge(ox, oty, ix - ox, iy - oty, cw, ch);
 				ctx.moveTo(ox, oty);
-				ctx.lineTo(ix, iy);
+				ctx.lineTo(back1.x, back1.y);
+
+				// Ray 2 back-extension: from optical centre through virtual image tip to edge
+				const back2 = rayToEdge(ox, oy, ix - ox, iy - oy, cw, ch);
 				ctx.moveTo(ox, oy);
-				ctx.lineTo(ix, iy);
+				ctx.lineTo(back2.x, back2.y);
+
 				ctx.stroke();
 				ctx.setLineDash([]);
 			}
