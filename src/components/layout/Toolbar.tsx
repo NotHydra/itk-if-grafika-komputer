@@ -35,10 +35,10 @@ export function Toolbar() {
 				</h1>
 			</div>
 
-			<Separator orientation="vertical" className="h-6" />
+			{/* <Separator orientation="vertical" className="h-6" /> */}
 
 			{/* Step indicator */}
-			<div className="flex items-center gap-1">
+			{/* <div className="flex items-center gap-1">
 				{steps.map((step, i) => (
 					<div key={step.id} className="flex items-center">
 						<div
@@ -59,7 +59,7 @@ export function Toolbar() {
 						)}
 					</div>
 				))}
-			</div>
+			</div> */}
 
 			{/* Spacer */}
 			<div className="flex-1" />
