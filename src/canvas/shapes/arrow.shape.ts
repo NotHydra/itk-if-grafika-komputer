@@ -4,59 +4,55 @@ import { ShapeRegistry } from "./ShapeRegistry";
 ShapeRegistry.register({
 	id: "arrow",
 	label: "Arrow",
-	icon: "move-right",
+	icon: "arrow-up",
 	defaultColor: "#ef4444",
 	draw(ctx, shape, _theme) {
-		const shaftLength = metaNum(shape.meta, "shaftLength", 60);
-		const headSize = metaNum(shape.meta, "headSize", 15);
-		const shaftWidth = 4;
+		const totalHeight = metaNum(shape.meta, "height", 80);
+		const headSize = metaNum(shape.meta, "headSize", 20);
+		const shaftWidth = 8;
+		const shaftHeight = totalHeight - headSize;
 
-		// Shaft
 		ctx.fillStyle = shape.color ?? "#ef4444";
-		ctx.fillRect(
-			-shaftLength / 2,
-			-shaftWidth / 2,
-			shaftLength - headSize,
-			shaftWidth,
-		);
 
-		// Arrowhead
+		// Shaft: from base (y=0) upward to y=-shaftHeight
+		ctx.fillRect(-shaftWidth / 2, -shaftHeight, shaftWidth, shaftHeight);
+
+		// Arrowhead: triangle pointing upward
 		ctx.beginPath();
-		ctx.moveTo(shaftLength / 2 - headSize, -headSize / 2);
-		ctx.lineTo(shaftLength / 2, 0);
-		ctx.lineTo(shaftLength / 2 - headSize, headSize / 2);
+		ctx.moveTo(0, -totalHeight);             // tip
+		ctx.lineTo(-headSize / 2, -shaftHeight); // lower-left corner
+		ctx.lineTo(headSize / 2, -shaftHeight);  // lower-right corner
 		ctx.closePath();
-		ctx.fillStyle = shape.color ?? "#ef4444";
 		ctx.fill();
 	},
 	getBounds(shape) {
-		const shaftLength = metaNum(shape.meta, "shaftLength", 60);
-		const headSize = metaNum(shape.meta, "headSize", 15);
+		const totalHeight = metaNum(shape.meta, "height", 80);
+		const headSize = metaNum(shape.meta, "headSize", 20);
 		return {
-			x: -shaftLength / 2,
-			y: -headSize / 2,
-			width: shaftLength,
-			height: headSize,
+			x: -headSize / 2,
+			y: -totalHeight, // topmost pixel
+			width: headSize,
+			height: totalHeight, // reaches down to y=0 (local origin)
 		};
 	},
 	inspectorFields: [
 		{
-			key: "shaftLength",
-			label: "Shaft Length",
+			key: "height",
+			label: "Height",
 			type: "range",
-			min: 20,
-			max: 150,
+			min: 30,
+			max: 200,
 			step: 5,
-			defaultValue: 60,
+			defaultValue: 80,
 		},
 		{
 			key: "headSize",
 			label: "Head Size",
 			type: "range",
-			min: 5,
-			max: 30,
+			min: 10,
+			max: 50,
 			step: 1,
-			defaultValue: 15,
+			defaultValue: 20,
 		},
 	],
 });
