@@ -255,14 +255,26 @@ export function renderOptics(
 		renderShape(ctx, shadowShape, theme, coords, null);
 		ctx.globalAlpha = 1.0;
 
-		// Draw Principal Rays
 		const def = ShapeRegistry.get(sourceShape.type);
 		if (def) {
-			// We trace the principal rays from the "Y" coordinate of the object.
-			// Usually users place the base of the object on the axis, or the object is centered.
-			// For physics diagrams, tracing from the object's `y` to the image's `y` creates
-			// the perfect geometric intersection.
-			const tipWorldY = sourceShape.y;
+			// Compute the VISUAL TIP of the source object in world coordinates.
+			// getBounds().y is the topmost local canvas pixel (negative = above origin).
+			// In world space (canvas Y inverted): tipOffset = -bounds.y × scale / worldScale.
+			// Source objects are always upright (rotation ≈ 0).
+			const bounds = def.getBounds(sourceShape);
+			const worldScale = scale; // coords.getScale() — pixels per world unit
+
+			const tipOffset = (-bounds.y * sourceShape.scale) / worldScale;
+			const tipWorldY = sourceShape.y + tipOffset;
+
+			// Compute the VISUAL TIP of the shadow (image) in world coordinates.
+			// For an INVERTED image (m < 0, rotation=180°), the head of the shape
+			// has flipped below its local origin, so the tip is BELOW shadowShape.y.
+			// For an UPRIGHT image (m > 0, rotation=0), the tip is ABOVE shadowShape.y.
+			// Formula: tipImgWorldY = shadowShape.y + sign(m) × (−bounds.y × shadowScale / worldScale)
+			const imgTopOffset = (-bounds.y * shadowShape.scale) / worldScale;
+			const tipImgWorldY =
+				shadowShape.y + Math.sign(shadow.magnification) * imgTopOffset;
 
 			const { x: sx, y: sy } = coords.worldToScreen(
 				sourceShape.x,
@@ -271,7 +283,6 @@ export function renderOptics(
 			const { x: ox, y: oy } = coords.worldToScreen(optic.x, optic.y);
 			const { y: oty } = coords.worldToScreen(optic.x, tipWorldY);
 
-			const tipImgWorldY = shadowShape.y;
 			const { x: ix, y: iy } = coords.worldToScreen(
 				shadowShape.x,
 				tipImgWorldY,

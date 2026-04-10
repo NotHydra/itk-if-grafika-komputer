@@ -8,6 +8,10 @@ import type { OpticsObject, ShadowResult, Shape2D } from "../types";
  * Uses standard absolute-distance conventions:
  * 1/f = 1/do + 1/di
  * m = -di / do
+ *
+ * Object height (h) is defined as the perpendicular distance from the shape's
+ * world-space Y position (shape.y) to the optical axis (optics.y). This is
+ * the physics reference point — rays trace from shape.y and converge at imageY.
  */
 export function calculateImage(
 	optics: OpticsObject,
@@ -68,13 +72,12 @@ export function calculateImage(
 		imageX = optics.x + di;
 	}
 
-	// Calculate source object height using its bounds.
-	// We'll treat the upper half of the bounds as the visible object height above the optical axis.
-	const bounds = def.getBounds(sourceShape);
-	const sourceHeight = bounds.height * sourceShape.scale;
+	// Object height = perpendicular distance from shape.y to the optical axis,
+	// expressed in world units. This is fully consistent with imageY below:
+	// both use shape.y as the single physics reference point.
+	const sourceHeight = Math.abs(sourceShape.y - optics.y);
 
-	// Magnified height (maintaining the same sign conventions)
-	// Usually, if m is negative, it's inverted.
+	// Image height = magnified object height
 	const imageHeight = sourceHeight * Math.abs(magnification);
 
 	const isVirtual = di < 0;
