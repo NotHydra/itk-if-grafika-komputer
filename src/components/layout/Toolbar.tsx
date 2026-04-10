@@ -95,10 +95,10 @@ export function Toolbar() {
 				</Button>
 			</div>
 
-			<Separator orientation="vertical" className="h-6" />
+			{/* <Separator orientation="vertical" className="h-6" /> */}
 
 			{/* Theme toggle */}
-			<Button
+			{/* <Button
 				variant="ghost"
 				size="icon"
 				className="h-7 w-7"
@@ -114,7 +114,7 @@ export function Toolbar() {
 				) : (
 					<Moon className="h-3.5 w-3.5 text-slate-600" />
 				)}
-			</Button>
+			</Button> */}
 		</header>
 	);
 }
