@@ -110,10 +110,10 @@ export class CanvasEngine {
 		// Render lines
 		renderLines(ctx, state.lines, state.points, state.theme, coords);
 
-		// Render graphs (stub until Step 2)
+		// Render graphs
 		renderGraphs(ctx, state.graphs, state.theme, coords);
 
-		// Render shapes (stub until Step 3)
+		// Render shapes
 		renderShapes(
 			ctx,
 			state.shapes,
@@ -122,7 +122,7 @@ export class CanvasEngine {
 			state.selectedObjectId,
 		);
 
-		// Render optics (stub until Step 4)
+		// Render optics
 		renderOptics(
 			ctx,
 			state.opticsObjects,
