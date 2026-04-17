@@ -1,6 +1,8 @@
 import type { LineSegment, Point2D, Theme } from "../../types";
 import { getColorTokens } from "../../utils/color";
 import type { ICoordinateSystem } from "../CoordinateSystem";
+import { drawLineDDA } from "../drawingAlgorithms/DDA";
+import { drawLineMidpoint } from "../drawingAlgorithms/Midpoint";
 
 export function renderLines(
 	ctx: CanvasRenderingContext2D,
@@ -33,19 +35,20 @@ export function renderLines(
 		const start = coords.worldToScreen(x1, y1);
 		const end = coords.worldToScreen(x2, y2);
 
-		ctx.beginPath();
-		ctx.moveTo(start.x, start.y);
+		const color = line.color ?? tokens.lineDefault;
 
-		if (line.algorithm === "native") {
-			ctx.lineTo(end.x, end.y);
+		if (line.algorithm === "DDA") {
+			drawLineDDA(ctx, start.x, start.y, end.x, end.y, color, line.thickness ?? 1);
+		} else if (line.algorithm === "midpoint") {
+			drawLineMidpoint(ctx, start.x, start.y, end.x, end.y, color, line.thickness ?? 1);
 		} else {
-			// Stub for Step 5: DDA and Midpoint algorithms
+			ctx.beginPath();
+			ctx.moveTo(start.x, start.y);
 			ctx.lineTo(end.x, end.y);
+			ctx.strokeStyle = color;
+			ctx.lineWidth = line.thickness ?? 2;
+			ctx.stroke();
 		}
-
-		ctx.strokeStyle = line.color ?? tokens.lineDefault;
-		ctx.lineWidth = line.thickness ?? 2;
-		ctx.stroke();
 
 		if (line.label) {
 			const midX = (start.x + end.x) / 2;
