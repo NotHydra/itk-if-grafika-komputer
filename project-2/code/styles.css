@@ -1,0 +1,240 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* Base */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+:root {
+	--bg: #0f1117;
+	--surface: #1a1d27;
+	--surface2: #22263a;
+	--border: #2e3350;
+	--accent: #4f8ef7;
+	--accent-dim: #3a6ac4;
+	--green: #3dd68c;
+	--red: #f76f6f;
+	--amber: #f7c14f;
+	--text: #e8eaf0;
+	--muted: #7a80a0;
+	--radius: 8px;
+	--font-main: "Inter", system-ui, sans-serif;
+	--font-mono: "JetBrains Mono", monospace;
+}
+
+html,
+body {
+	height: 100%;
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font-main);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+/* App */
+#app {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+	padding: 24px 16px 32px;
+	min-height: 100vh;
+}
+
+/* Canvas Section */
+#canvas-section {
+	width: 100%;
+	max-width: 820px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px;
+	overflow: hidden;
+}
+
+#simCanvas {
+	display: block;
+	background: #000;
+	border-radius: 4px;
+	image-rendering: pixelated;
+	width: 100%;
+	max-width: 800px;
+	height: auto;
+	aspect-ratio: 800 / 500;
+}
+
+/* Control Panel */
+#control-panel {
+	width: 100%;
+	max-width: 820px;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: 18px 22px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+/* Control Row */
+.control-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.ctrl-label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 120px;
+	font-weight: 500;
+	color: var(--muted);
+	font-size: 0.82rem;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+
+.ctrl-label .icon {
+	font-size: 1rem;
+}
+
+/* Range Sliders */
+.ctrl-slider {
+	flex: 1;
+	appearance: none;
+	-webkit-appearance: none;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--surface2);
+	outline: none;
+	cursor: pointer;
+	accent-color: var(--accent);
+	border: none;
+}
+
+.ctrl-slider::-webkit-slider-thumb {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--accent);
+	cursor: pointer;
+	transition: background 0.15s;
+	border: 2px solid var(--bg);
+}
+
+.ctrl-slider::-webkit-slider-thumb:hover {
+	background: #6fa8ff;
+}
+
+.ctrl-value {
+	font-family: var(--font-mono);
+	font-size: 0.8rem;
+	color: var(--accent);
+	min-width: 42px;
+	text-align: right;
+}
+
+/* Text Input */
+.ctrl-text {
+	flex: 1;
+	max-width: 180px;
+	background: var(--surface2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	color: var(--text);
+	font-family: var(--font-mono);
+	font-size: 0.88rem;
+	padding: 6px 10px;
+	outline: none;
+	transition: border-color 0.15s;
+}
+
+.ctrl-text:focus {
+	border-color: var(--accent);
+}
+
+/* Buttons */
+.btn-row {
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.btn {
+	font-family: var(--font-main);
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 7px 14px;
+	border: none;
+	border-radius: var(--radius);
+	cursor: pointer;
+	transition:
+		background 0.15s,
+		transform 0.1s;
+	letter-spacing: 0.02em;
+}
+
+.btn:active {
+	transform: scale(0.97);
+}
+
+.btn-secondary {
+	background: var(--surface2);
+	color: var(--text);
+	border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+	background: var(--border);
+}
+
+.btn-primary {
+	background: var(--accent-dim);
+	color: #fff;
+}
+
+.btn-primary:hover {
+	background: var(--accent);
+}
+
+.btn-accent {
+	background: #2a5c3a;
+	color: var(--green);
+	border: 1px solid #3dd68c40;
+}
+
+.btn-accent:hover {
+	background: #35764a;
+}
+
+.btn-danger {
+	background: #4d2020;
+	color: var(--red);
+	border: 1px solid #f76f6f40;
+}
+
+.btn-danger:hover {
+	background: #6b2c2c;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+	.ctrl-label {
+		min-width: 90px;
+		font-size: 0.75rem;
+	}
+	.btn {
+		font-size: 0.75rem;
+		padding: 6px 10px;
+	}
+}

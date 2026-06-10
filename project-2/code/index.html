@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<title>2D Physics Ball Simulation</title>
+
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+
+	<body>
+		<div id="app">
+			<main id="canvas-section">
+				<canvas id="simCanvas" width="800" height="500"></canvas>
+			</main>
+
+			<section id="control-panel" aria-label="Simulation Controls">
+				<!-- X Slider -->
+				<div class="control-row">
+					<label for="sliderX" class="ctrl-label"> X Position </label>
+
+					<input
+						type="range"
+						id="sliderX"
+						class="ctrl-slider"
+						min="0"
+						max="700"
+						value="0"
+						step="1"
+					/>
+
+					<span class="ctrl-value" id="sliderXVal">0</span>
+				</div>
+
+				<!-- Y Slider -->
+				<div class="control-row">
+					<label for="sliderY" class="ctrl-label"> Y Offset </label>
+
+					<input
+						type="range"
+						id="sliderY"
+						class="ctrl-slider"
+						min="0"
+						max="400"
+						value="0"
+						step="1"
+					/>
+
+					<span class="ctrl-value" id="sliderYVal">0</span>
+				</div>
+
+				<!-- Velocity input -->
+				<div class="control-row">
+					<label for="velocityInput" class="ctrl-label">
+						Velocity
+					</label>
+
+					<input
+						type="text"
+						id="velocityInput"
+						class="ctrl-text"
+						value="300"
+						placeholder="e.g. 300"
+					/>
+				</div>
+
+				<!-- Action Buttons -->
+				<div class="control-row btn-row">
+					<button id="btnStepLeft" class="btn btn-secondary">
+						Step Left
+					</button>
+
+					<button id="btnStepRight" class="btn btn-secondary">
+						Step Right
+					</button>
+
+					<button id="btnRollLeft" class="btn btn-primary">
+						Roll
+					</button>
+
+					<button id="btnRollRight" class="btn btn-primary">
+						Roll
+					</button>
+
+					<button id="btnDrop" class="btn btn-accent">Drop</button>
+
+					<button id="btnReset" class="btn btn-danger">Reset</button>
+				</div>
+			</section>
+		</div>
+
+		<script src="main.js" defer></script>
+	</body>
+</html>

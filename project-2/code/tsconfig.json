@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "CommonJS",
+    "strict": true,
+    "outDir": ".",
+    "noEmitOnError": true,
+    "lib": ["ES2020", "DOM"]
+  },
+  "files": ["main.ts"]
+}
